@@ -147,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
                 {
                     @Override
                     protected void populateViewHolder(PostsViewHolder viewHolder, Posts model, int position) {
+
+                        final String PostKey = getRef(position).getKey();//pegar a posição do post ao clicar
+
                         //pegar os dados, exemplo: profilename, data, time, etc...
                         viewHolder.setFullname(model.getFullname());
                         viewHolder.setTime(model.getTime());
@@ -154,6 +157,16 @@ public class MainActivity extends AppCompatActivity {
                         viewHolder.setDescription(model.getDescription());
                         viewHolder.setProfileimage(getApplicationContext(), model.getProfileimage());
                         viewHolder.setPostimage(getApplicationContext(), model.getPostimage());
+
+                        viewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent clickPostIntent = new Intent(MainActivity.this, ClickPostActivity.class);
+                                clickPostIntent.putExtra("PostKey", PostKey);
+                                startActivity(clickPostIntent);
+                            }
+                        });
+
                     }
                 };
         postList.setAdapter(firebaseRecyclerAdapter);
@@ -275,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_profile:
-                Toast.makeText(this,"Profile", Toast.LENGTH_SHORT).show();
+                SendUserToProfileActivity();
                 break;
 
             case R.id.nav_home:
@@ -283,11 +296,11 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.nav_friends:
-                Toast.makeText(this,"Friend List", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"Friends", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_find_friends:
-                Toast.makeText(this,"Find Friends", Toast.LENGTH_SHORT).show();
+                SendUserToFindFriendsActivity();
                 break;
 
             case R.id.nav_messages:
@@ -309,6 +322,17 @@ public class MainActivity extends AppCompatActivity {
     private void SendUserToSettingsActivity(){
         Intent SettingIntent = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(SettingIntent);
+
+    }
+
+    private void SendUserToFindFriendsActivity(){
+        Intent FindFriendsIntent = new Intent(MainActivity.this, FindFriendsActivity.class);
+        startActivity(FindFriendsIntent);
         finish();
+    }
+
+    private void SendUserToProfileActivity(){
+        Intent ProfileIntent = new Intent(MainActivity.this, ProfileActivity.class);
+        startActivity(ProfileIntent);
     }
 }

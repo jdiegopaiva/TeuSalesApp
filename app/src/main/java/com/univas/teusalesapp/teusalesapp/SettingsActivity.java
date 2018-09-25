@@ -8,6 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,8 +34,6 @@ import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.univas.teusalesapp.teusalesapp.SetupActivity.Gallery_Pick;
-
 public class SettingsActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
@@ -41,7 +41,9 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText userName, userProfName, userStatus, userCountry, userGender, userRelation, userDOB;
     private Button UpdateAccountSettingsButton;
     private CircleImageView userProfImage;
+    private final String TAG = "SettingsActivity";
     private ProgressDialog loadingBar;
+
 
     private DatabaseReference SettingsUserRef;
     private FirebaseAuth mAuth;
@@ -81,24 +83,30 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-                    String myProfileImage = dataSnapshot.child("profileimage").getValue().toString();
-                    String myUserName = dataSnapshot.child("username").getValue().toString();
-                    String myProfileName = dataSnapshot.child("fullname").getValue().toString();
-                    String myProfileStatus = dataSnapshot.child("status").getValue().toString();
-                    String myDOB = dataSnapshot.child("dob").getValue().toString();
-                    String myCountry = dataSnapshot.child("country").getValue().toString();
-                    String myGender = dataSnapshot.child("gender").getValue().toString();
-                    String myRelationStatus = dataSnapshot.child("relationshipstatus").getValue().toString();
+                    try {
 
-                    Picasso.with(SettingsActivity.this).load(myProfileImage).placeholder(R.drawable.profile).into(userProfImage);
 
-                    userName.setText(myUserName);
-                    userProfName.setText(myProfileName);
-                    userStatus.setText(myProfileStatus);
-                    userDOB.setText(myDOB);
-                    userCountry.setText(myCountry);
-                    userGender.setText(myGender);
-                    userRelation.setText(myRelationStatus);
+                        String myUserName = dataSnapshot.child("username").getValue().toString();
+                        userName.setText(myUserName);
+                        String myProfileName = dataSnapshot.child("fullname").getValue().toString();
+                        userProfName.setText(myProfileName);
+                        String myProfileStatus = dataSnapshot.child("status").getValue().toString();
+                        userStatus.setText(myProfileStatus);
+                        String myDOB = dataSnapshot.child("dob").getValue().toString() == "nome" ? "" : dataSnapshot.child("dob").getValue().toString() ;
+                        userDOB.setText(myDOB);
+                        String myCountry = dataSnapshot.child("country").getValue().toString();
+                        userCountry.setText(myCountry);
+                        String myGender = dataSnapshot.child("gender").getValue().toString();
+                        userGender.setText(myGender);
+                        String myRelationStatus = dataSnapshot.child("relationshipstatus").getValue().toString();
+                        userRelation.setText(myRelationStatus);
+                        String myProfileImage = dataSnapshot.child("profileimage").getValue().toString();
+                        Picasso.with(SettingsActivity.this).load(myProfileImage).placeholder(R.drawable.profile).into(userProfImage);
+
+                    } catch(Exception e){
+                        Log.i(TAG,e.getMessage());
+                    }
+
 
                 }
             }
@@ -167,7 +175,7 @@ public class SettingsActivity extends AppCompatActivity {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if(task.isSuccessful()){
-                                                //depois de salvar a imagem de perfil que foi cortada, mande o usuário de volta para o setupActivity para poder finalizar os dados: username, nome e país.
+                                                //depois de salvar a imagem de perfil que foi cortada, mande o usuário de volta para o settingsActivity para poder finalizar os dados: username, nome e país.
                                                 Intent selfIntent = new Intent(SettingsActivity.this, SettingsActivity.class);
                                                 startActivity(selfIntent);
 
@@ -272,10 +280,28 @@ public class SettingsActivity extends AppCompatActivity {
             });
     }
 
+    //botão de fazer voltar para a mainActivity
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == android.R.id.home){
+            SendUserToMainActivity();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void SendUserToMainActivity() {
         Intent mainIntent = new Intent(SettingsActivity.this, MainActivity.class);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(mainIntent);
         finish();
     }
+
+
+
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
+
 }
